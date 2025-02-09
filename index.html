@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF Diamond Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: url('zia.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-container input {
+            flex: 1;
+        }
+        .password-container .toggle-password {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .ad-box {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #ff4e50, #fc913a);
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .ad-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background: #c9302c;
+        }
+        .diamond-icon img {
+            width: 20px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .glow-text {
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6);
+        }
+        .neon-btn {
+            background-color: #00d4ff;
+            color: white;
+            border: none;
+            font-size: 18px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .neon-btn:hover {
+            background-color: #00b3e6;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2 class="glow-text">Login</h2>
+        <input type="email" id="email" placeholder="Enter your email">
+        <div class="password-container">
+            <input type="password" id="password" placeholder="Enter 8-character password">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+        <button onclick="login()" class="neon-btn">Login</button>
+    </div>
+    
+    <div class="container" id="main-container" style="display: none;">
+        <h2 class="glow-text">Earn Diamonds</h2>
+        <div id="ad-container" class="ad-box" onclick="watchAd()">Click to Watch Ad</div>
+        <p class="glow-text">Diamonds: <span class="diamond-icon">
+            <img src="diamond-icon.png" alt="Diamond Icon"> 
+            <span id="diamonds">0</span>
+        </span></p>
+        <button onclick="redeem()" id="redeem-btn" class="neon-btn" disabled>Redeem 70 Diamonds</button>
+        <input type="text" id="uid" placeholder="Enter your Free Fire UID" style="display: none;">
+        <button onclick="submitUID()" id="submit-btn" class="neon-btn" style="display: none;">Submit</button>
+        <p id="confirmation-message" style="display: none;">Diamonds will be sent to your Free Fire ID within 1 hour.</p>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        let loggedInUser = ''; // Logged in user email
+        let userDiamonds = {}; // Store diamonds for each user
+
+        // Check if user is already logged in and retrieve data from localStorage
+        if (localStorage.getItem("loggedInUser")) {
+            loggedInUser = localStorage.getItem("loggedInUser");
+            let storedPassword = localStorage.getItem("userPassword");
+            let storedDiamonds = localStorage.getItem("userDiamonds");
+
+            // If password matches, show diamonds
+            if (storedPassword && storedDiamonds) {
+                userDiamonds[loggedInUser] = parseInt(storedDiamonds);
+                document.getElementById("diamonds").innerText = userDiamonds[loggedInUser];
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("main-container").style.display = "block";
+            }
+        }
+
+        function login() {
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            if (!email.includes('@gmail.com')) {
+                alert("Please enter a valid Gmail address!");
+                return;
+            }
+
+            if (password.length === 8) {
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("main-container").style.display = "block";
+                
+                if (!userDiamonds[email]) {
+                    userDiamonds[email] = 0; // Initialize diamonds if not set
+                }
+                document.getElementById("diamonds").innerText = userDiamonds[email];
+                loggedInUser = email; // Save the logged-in user's email
+
+                // Store user data in localStorage
+                localStorage.setItem("loggedInUser", email);
+                localStorage.setItem("userPassword", password);
+                localStorage.setItem("userDiamonds", userDiamonds[email].toString());
+            } else {
+                alert("Password must be 8 characters long!");
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            let toggleIcon = document.querySelector(".toggle-password");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.textContent = "🙈";  // Change icon to 'hide'
+            } else {
+                passwordField.type = "password";
+                toggleIcon.textContent = "👁️";  // Change icon to 'show'
+            }
+        }
+        
+        // Ads content and backgrounds
+        let ads = [
+            { content: "Ad 1: Watch and earn rewards!", background: "linear-gradient(45deg, #ff4e50, #fc913a)" },
+            { content: "Ad 2: Click for more rewards!", background: "linear-gradient(45deg, #00c6ff, #0072ff)" },
+            { content: "Ad 3: Watch more ads and earn!", background: "linear-gradient(45deg, #ff7e5f, #feb47b)" },
+            { content: "Ad 4: Click here for special rewards!", background: "linear-gradient(45deg, #ff6a00, #ee0979)" }
+        ];
+
+        // Watch ad function
+        function watchAd() {
+            let randomAd = ads[Math.floor(Math.random() * ads.length)];
+            
+            // Change ad content and background
+            let adContainer = document.getElementById("ad-container");
+            adContainer.style.background = randomAd.background;
+            adContainer.innerText = randomAd.content;
+            
+            // Add diamonds for the user
+            let email = document.getElementById("email").value;
+            userDiamonds[email] += 5;
+            document.getElementById("diamonds").innerText = userDiamonds[email];
+
+            // Enable redeem button if enough diamonds are collected
+            if (userDiamonds[email] >= 70) {
+                document.getElementById("redeem-btn").disabled = false;
+            }
+
+            // Ensure the ad box stays visible
+            adContainer.style.display = "block";  
+        }
+
+        function redeem() {
+            let email = document.getElementById("email").value;
+            if (userDiamonds[email] >= 70) {
+                userDiamonds[email] -= 70;
+                document.getElementById("diamonds").innerText = userDiamonds[email];
+                document.getElementById("redeem-btn").style.display = "none";
+                document.getElementById("uid").style.display = "block";
+                document.getElementById("submit-btn").style.display = "block";
+            }
+        }
+        
+        function submitUID() {
+            let uid = document.getElementById("uid").value;
+            
+            if (uid) {
+                alert("Request submitted for approval!");
+                
+                // Use the logged-in user's email to send UID
+                sendEmail(uid, loggedInUser, 70);
+                
+                document.getElementById("uid").style.display = "none";
+                document.getElementById("submit-btn").style.display = "none";
+                document.getElementById("redeem-btn").style.display = "block";
+                document.getElementById("redeem-btn").disabled = true;
+                
+                // Show the confirmation message
+                document.getElementById("confirmation-message").style.display = "block";
+                
+                // Hide the message after 10 seconds
+                setTimeout(function() {
+                    document.getElementById("confirmation-message").style.display = "none";
+                }, 10000); // 10000 milliseconds = 10 seconds
+            } else {
+                alert("Please enter your UID!");
+            }
+        }
+
+        function sendEmail(uid, email, diamonds) {
+            window.location.href = `mailto:${email}?subject=Diamond Redeem Request&body=UID: ${uid}%0AEmail: ${email}%0ADiamonds: ${diamonds}`;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            localStorage.removeItem("userPassword");
+            localStorage.removeItem("userDiamonds");
+
+            document.getElementById("login-container").style.display = "block";
+            document.getElementById("main-container").style.display = "none";
+        }
+    </script>
+</body>
+</html>
